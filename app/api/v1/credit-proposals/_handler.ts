@@ -4,7 +4,7 @@ import { ApiError } from "@/lib/api/types";
 import type { HandlerCtx } from "@/lib/api/handlers/types";
 import { audit } from "@/lib/audit";
 import { encryptOperationalValue, operationalBufferToBytea } from "@/lib/operational/crypto";
-import type { CreateCreditProposalInput } from "@/lib/schemas";
+import type { CreateCreditProposalInput, CreditProposalListQuery } from "@/lib/schemas";
 
 type SB = SupabaseClient;
 
@@ -111,4 +111,76 @@ export async function createCreditProposalHandler(
   });
 
   return proposal;
+}
+
+export async function listCreditProposalsHandler(
+  supabase: SB,
+  ctx: HandlerCtx,
+  input: CreditProposalListQuery,
+): Promise<Record<string, unknown>[]> {
+  if (ctx.actor.type !== "user") {
+    throw new ApiError(
+      403,
+      "forbidden",
+      undefined,
+      ctx.requestId,
+      "Somente usuários autenticados podem consultar propostas.",
+    );
+  }
+
+  const { data, error } = await supabase.rpc(
+    "fn_list_credit_proposals" as never,
+    {
+      p_org: ctx.organization_id,
+      p_limit: input.limit,
+      p_offset: input.offset,
+    } as never,
+  );
+
+  if (error) {
+    if (error.code === "42501") {
+      throw new ApiError(
+        403,
+        "forbidden",
+        undefined,
+        ctx.requestId,
+        "Você não tem permissão para consultar estas propostas.",
+      );
+    }
+
+    if (error.code === "22023") {
+      throw new ApiError(
+        422,
+        "validation_failed",
+        undefined,
+        ctx.requestId,
+        "Os parâmetros da consulta são inválidos.",
+      );
+    }
+
+    console.error("[credit-proposal.list] RPC falhou:", {
+      code: error.code,
+      requestId: ctx.requestId,
+    });
+
+    throw new ApiError(
+      500,
+      "internal_error",
+      undefined,
+      ctx.requestId,
+      "Falha ao consultar as propostas.",
+    );
+  }
+
+  if (!Array.isArray(data)) {
+    throw new ApiError(
+      500,
+      "internal_error",
+      undefined,
+      ctx.requestId,
+      "A consulta de propostas retornou um formato inválido.",
+    );
+  }
+
+  return data as Record<string, unknown>[];
 }

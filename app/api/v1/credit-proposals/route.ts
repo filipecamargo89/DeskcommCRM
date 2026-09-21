@@ -5,12 +5,59 @@ import { ApiError } from "@/lib/api/types";
 import { ok, fail } from "@/lib/api/wrappers";
 import { requireRole } from "@/lib/auth/require-role";
 import { requireSupportWrite } from "@/lib/impersonate/support";
-import { createCreditProposalSchema, validateRequest, type CreateCreditProposalInput } from "@/lib/schemas";
+import {
+  createCreditProposalSchema,
+  creditProposalListQuerySchema,
+  validateRequest,
+  type CreateCreditProposalInput,
+} from "@/lib/schemas";
 import { createClient } from "@/lib/supabase/server";
 
-import { createCreditProposalHandler } from "./_handler";
+import { createCreditProposalHandler, listCreditProposalsHandler } from "./_handler";
 
 export const dynamic = "force-dynamic";
+
+export async function GET(req: NextRequest): Promise<Response> {
+  const requestId = randomUUID();
+  const authz = await requireRole("viewer", {
+    requestId,
+    resource: "credit_proposals",
+    allowPlatformAdmin: true,
+  });
+  if (!authz.ok) return authz.response;
+
+  const parsed = creditProposalListQuerySchema.safeParse(
+    Object.fromEntries(req.nextUrl.searchParams.entries()),
+  );
+  if (!parsed.success) {
+    return fail("validation_failed", "Parâmetros de consulta inválidos.", 422, {
+      requestId,
+      details: parsed.error.flatten(),
+    });
+  }
+
+  const supabase = await createClient();
+
+  try {
+    const proposals = await listCreditProposalsHandler(
+      supabase,
+      {
+        organization_id: authz.org.orgId,
+        actor: { type: "user", id: authz.user.id },
+        requestId,
+        idioma: authz.user.idioma,
+      },
+      parsed.data,
+    );
+
+    return ok(proposals, { requestId });
+  } catch (err) {
+    if (err instanceof ApiError) {
+      return fail(err.code, err.message, err.status, { requestId });
+    }
+    throw err;
+  }
+}
 
 export async function POST(req: NextRequest): Promise<Response> {
   const supportDenied = await requireSupportWrite();
