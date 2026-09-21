@@ -176,6 +176,12 @@ const schema = z.object({
   // devolve 401 em toda chamada — por isso `getWacallsClient()` exige os dois.
   WACALLS_API_TOKEN: z.string().optional().default(""),
 
+  // ─── Zion Operacional ───
+  //
+  // AES-256-GCM exclusiva para dados sensíveis das propostas de crédito.
+  // Deve conter exatamente 32 bytes codificados em base64.
+  // Nunca expor ao navegador e nunca usar prefixo NEXT_PUBLIC_.
+  ZION_OPERATIONAL_AES_KEY: required("ZION_OPERATIONAL_AES_KEY"),
   // Upstash Redis
   UPSTASH_REDIS_REST_URL: required("UPSTASH_REDIS_REST_URL"),
   UPSTASH_REDIS_REST_TOKEN: required("UPSTASH_REDIS_REST_TOKEN"),
