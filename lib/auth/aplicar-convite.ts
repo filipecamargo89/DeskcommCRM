@@ -57,23 +57,42 @@ export async function aplicarConvite(params: {
   // Convite REVOGADO na tela de Equipe. Sem linha, segue — ver o cabeçalho.
   const { data: linhaDoConvite } = await admin
     .from("team_invites")
-    .select("revoked_at")
+    .select("revoked_at, role, operational_role")
     .eq("id", payload.invite_id)
     .eq("organization_id", payload.organization_id)
     .maybeSingle();
   if (linhaDoConvite?.revoked_at) return { ok: false, motivo: "invalid_or_expired" };
-
+  if (payload.operational_role) {
+  if (
+    !linhaDoConvite ||
+    linhaDoConvite.role !== payload.role ||
+    linhaDoConvite.operational_role !== payload.operational_role
+  ) {
+    return { ok: false, motivo: "invalid_or_expired" };
+  }
+}
   // Org, papel e convidador vêm EXCLUSIVAMENTE do token assinado; o usuário,
   // de quem chamou. Nada aqui vem de body de requisição.
-  const { data: resultado, error } = await admin.rpc("fn_accept_team_invite", {
-    p_interface_settings: payload.interface_settings ?? { preset: "completa" },
-    p_user: userId,
-    p_org: payload.organization_id,
-    p_role: payload.role,
-    p_invited_by: payload.invited_by ?? null,
-    p_issued_at: payload.iat ? new Date(payload.iat * 1000).toISOString() : null,
-    p_invited_at: new Date((payload.iat ?? payload.exp - 86400) * 1000).toISOString(),
-  });
+  const rpcParams = {
+  p_interface_settings: payload.interface_settings ?? { preset: "completa" },
+  p_user: userId,
+  p_org: payload.organization_id,
+  p_role: payload.role,
+  p_invited_by: payload.invited_by ?? null,
+  p_issued_at: payload.iat
+    ? new Date(payload.iat * 1000).toISOString()
+    : null,
+  p_invited_at: new Date(
+    (payload.iat ?? payload.exp - 86400) * 1000,
+  ).toISOString(),
+};
+
+const { data: resultado, error } = payload.operational_role
+  ? await admin.rpc("fn_accept_team_invite_operational", {
+      ...rpcParams,
+      p_operational_role: payload.operational_role,
+    })
+  : await admin.rpc("fn_accept_team_invite", rpcParams);
 
   if (error) {
     return {
@@ -91,7 +110,11 @@ export async function aplicarConvite(params: {
       organizationId: payload.organization_id,
       resourceType: "membership",
       resourceId: resultado.id,
-      metadata: { invite_id: payload.invite_id, role: payload.role },
+      metadata: {
+  invite_id: payload.invite_id,
+  role: payload.role,
+  operational_role: payload.operational_role ?? null,
+},
       requestId: requestId ?? null,
     });
   }

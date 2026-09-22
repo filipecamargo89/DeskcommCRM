@@ -51,7 +51,8 @@ declare
   v_result jsonb;
   v_member public.credit_operations_members%rowtype;
 begin
-  if p_operational_role not in ('operator', 'supervisor') then
+  if p_operational_role is null
+   or p_operational_role not in ('operator', 'supervisor') then
     raise exception 'invalid_operational_role'
       using errcode = '22023';
   end if;

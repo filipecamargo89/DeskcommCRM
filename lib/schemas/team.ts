@@ -18,12 +18,17 @@ export const inviteMemberSchema = z.object({
         .object({
           email: z.string().email(),
           role: z.enum(ROLES),
+          operational_role: z.enum(["operator", "supervisor"]).optional(),
           interface_settings: interfaceSettingsSchema.optional(),
         })
-        .refine((v) => !v.interface_settings || interfaceTemDestino(v.interface_settings, v.role), {
-          message: "Selecione ao menos uma área permitida ao papel.",
-          path: ["interface_settings"],
-        }),
+         .refine((v) => !v.interface_settings || interfaceTemDestino(v.interface_settings, v.role), {
+  message: "Selecione ao menos uma área permitida ao papel.",
+  path: ["interface_settings"],
+})
+         .refine((v) => !v.operational_role || v.role === "agent", {
+  message: "Perfis operacionais do Zion Gestão devem usar o papel agent.",
+  path: ["role"],
+}),
     )
     .min(1)
     .max(20),

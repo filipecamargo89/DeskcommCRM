@@ -9171,7 +9171,20 @@ export type Database = {
         Args: { p_user: string; p_org: string; p_role: string; p_invited_by: string | null; p_issued_at: string | null; p_invited_at: string; p_interface_settings?: Json }
         Returns: Json
       }
-
+ 
+      fn_accept_team_invite_operational: {
+  Args: {
+    p_user: string
+    p_org: string
+    p_role: string
+    p_operational_role: string
+    p_invited_by: string | null
+    p_issued_at: string | null
+    p_invited_at: string
+    p_interface_settings: Json
+  }
+  Returns: Json
+}
       fn_support_context: { Args: Record<PropertyKey, never>; Returns: Json }
       fn_support_write_allowed: { Args: { p_org: string }; Returns: boolean }
       fn_support_storage_write_allowed: { Args: { p_name: string }; Returns: boolean }

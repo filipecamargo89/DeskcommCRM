@@ -23,6 +23,7 @@ export interface InvitePayload {
   email: string;
   organization_id: string;
   role: string;
+  operational_role?: "operator" | "supervisor";
   exp: number; // epoch seconds
   iat?: number;
   invited_by?: string;
@@ -68,6 +69,7 @@ export function verifyInviteToken(token: string): InvitePayload | null {
       email: z.string().email(),
       organization_id: z.string().uuid(),
       role: z.enum(["viewer", "agent", "manager", "admin"]),
+      operational_role: z.enum(["operator", "supervisor"]).optional(),
       exp: z.number().int().positive(),
       iat: z.number().int().positive().optional(),
       invited_by: z.string().uuid().optional(),

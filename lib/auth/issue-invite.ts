@@ -17,6 +17,7 @@ export async function issueInvite(input: {
   interfaceSettings?: InterfaceSettings;
   email: string;
   role: "viewer" | "agent" | "manager" | "admin";
+  operationalRole?: "operator" | "supervisor"; 
   organizationId: string;
   orgName: string;
   inviterId: string;
@@ -40,6 +41,7 @@ export async function issueInvite(input: {
     email,
     organization_id: input.organizationId,
     role: input.role,
+    operational_role: input.operationalRole,  
     exp,
     iat,
     invited_by: input.inviterId,
@@ -97,6 +99,7 @@ export async function issueInvite(input: {
       metadata: {
         email,
         role: input.role,
+        operational_role: input.operationalRole ?? null,
         email_dispatched: dispatched,
         email_error: deliveryError ?? null,
         email_via: via ?? null,

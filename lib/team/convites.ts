@@ -42,6 +42,7 @@ export interface ConviteDeTime {
   organization_id: string;
   email: string;
   role: Role;
+  operational_role: "operator" | "supervisor" | null;
   interface_settings: InterfaceSettings;
   invited_by: string | null;
   inviter_name: string | null;
@@ -66,6 +67,7 @@ export function linkDeAceite(row: ConviteDeTime): string {
     email: row.email,
     organization_id: row.organization_id,
     role: row.role,
+    operational_role: row.operational_role ?? undefined,
     iat: Math.floor(Date.parse(row.last_sent_at) / 1000),
     exp: Math.floor(Date.parse(row.expires_at) / 1000),
     invited_by: row.invited_by ?? undefined,
@@ -79,6 +81,7 @@ interface EmitirParams {
   orgName: string;
   email: string;
   role: Role;
+  operationalRole?: "operator" | "supervisor";
   interfaceSettings?: InterfaceSettings;
   inviterId: string;
   inviterName: string;
@@ -130,6 +133,7 @@ export async function emitirConvite(
   const emitido = await issueInvite({
     email,
     role: params.role,
+    operationalRole: params.operationalRole,
     interfaceSettings,
     organizationId: params.organizationId,
     orgName: params.orgName,
@@ -145,6 +149,7 @@ export async function emitirConvite(
     organization_id: params.organizationId,
     email,
     role: params.role,
+    operational_role: params.operationalRole ?? null,
     interface_settings: interfaceSettings,
     invited_by: params.inviterId,
     inviter_name: params.inviterName,
@@ -201,6 +206,7 @@ export async function reenviarConvite(
   const emitido = await issueInvite({
     email: convite.email,
     role: convite.role,
+    operationalRole: convite.operational_role ?? undefined,
     interfaceSettings: convite.interface_settings,
     organizationId: convite.organization_id,
     orgName: params.orgName,

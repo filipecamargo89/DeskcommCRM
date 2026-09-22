@@ -101,6 +101,7 @@ export async function POST(req: NextRequest): Promise<Response> {
       const { convite, accept_url, email_dispatched, email_error } = await emitirConvite(admin, {
         email,
         role: inv.role,
+        operationalRole: inv.operational_role,
         interfaceSettings: inv.interface_settings,
         organizationId: activeOrg.orgId,
         orgName: activeOrg.name,
@@ -121,6 +122,7 @@ export async function POST(req: NextRequest): Promise<Response> {
         await issueInvite({
           email,
           role: inv.role,
+          operationalRole: inv.operational_role,
           interfaceSettings: inv.interface_settings,
           organizationId: activeOrg.orgId,
           orgName: activeOrg.name,
