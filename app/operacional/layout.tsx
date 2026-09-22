@@ -5,7 +5,6 @@ import { redirect } from "next/navigation";
 import { signOut } from "@/app/actions/auth/signOut";
 import { requireRole } from "@/lib/auth/require-role";
 import { loadAuthUser } from "@/lib/auth/server";
-import { roleAtLeast } from "@/lib/auth/types";
 import { ClipboardText, House, SignOut } from "@/lib/ui/icons";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -36,10 +35,11 @@ export default async function OperationalLayout({ children }: { children: React.
     p_min_role: "operator",
   } as never);
   const allowed = !error && (
-    (user.is_platform_admin && !user.support)
-    || roleAtLeast(authz.org.role, "manager")
-    || isOperator === true
-  );
+  (user.is_platform_admin && !user.support)
+  || authz.org.role === "admin"
+  || isOperator === true
+);
+
   if (!allowed) return <AccessDenied />;
 
   // Reutiliza exatamente a mesma marca da organização aplicada no CRM.

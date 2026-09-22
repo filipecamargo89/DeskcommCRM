@@ -32,6 +32,7 @@ interface MemberDto extends MembershipRow {
   email: string | null;
   full_name: string | null;
   last_sign_in_at: string | null;
+  operational_role: "operator" | "supervisor" | null;
 }
 
 export async function GET(_req: NextRequest): Promise<Response> {
@@ -60,12 +61,30 @@ export async function GET(_req: NextRequest): Promise<Response> {
 
   const members: MembershipRow[] = (rows ?? []) as MembershipRow[];
 
+
+
+  const { data: operationalRows, error: operationalError } = await supabase
+    .from("credit_operations_members")
+    .select("user_id, operational_role, revoked_at")
+    .eq("organization_id", activeOrg.orgId);
+
+  if (operationalError) {
+    return fail("internal_error", operationalError.message, 500, { requestId });
+  }
+
+  const operationalRoleByUser = new Map(
+    (operationalRows ?? [])
+      .filter((row) => !row.revoked_at)
+      .map((row) => [row.user_id, row.operational_role] as const),
+  );
+
   if (!isServiceRoleConfigured() || members.length === 0) {
     const degraded: MemberDto[] = members.map((m) => ({
       ...m,
       email: null,
       full_name: null,
       last_sign_in_at: null,
+      operational_role: operationalRoleByUser.get(m.user_id) ?? null,
     }));
     return ok(degraded, { requestId });
   }
@@ -80,7 +99,8 @@ export async function GET(_req: NextRequest): Promise<Response> {
         email: u?.email ?? null,
         full_name: (u?.user_metadata?.full_name as string | undefined) ?? null,
         last_sign_in_at: u?.last_sign_in_at ?? null,
-      };
+        operational_role: operationalRoleByUser.get(m.user_id) ?? null,
+     };
     }),
   );
   return ok(enriched, { requestId });
