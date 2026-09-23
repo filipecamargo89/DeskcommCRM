@@ -88,8 +88,9 @@ export default async function LoginPage({
                 {titulo}
               </h1>
               <p className="mt-3 max-w-[430px] text-[15px] leading-6 text-white/70 md:text-[16px] md:leading-7">
-                Entre com suas credenciais para acessar o ambiente{" "}
-                {isOperationalLogin ? "operacional" : "de atendimento"}.
+                {`Entre com suas credenciais para acessar o ambiente ${
+                  isOperationalLogin ? "operacional" : "de atendimento"
+                }.`}
               </p>
             </div>
 
