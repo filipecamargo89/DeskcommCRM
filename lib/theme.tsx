@@ -29,7 +29,10 @@ function readStoredTheme(): Theme {
   } catch {
     // localStorage indisponível (modo privado, sandbox) — segue com default.
   }
-  return "system";
+  // A área de trabalho da Zion nasce escura para acompanhar a identidade do
+  // login. Isso é apenas o primeiro acesso: qualquer escolha feita no seletor
+  // de tema continua prevalecendo e sendo persistida normalmente.
+  return window.location.pathname.startsWith("/app") ? "dark" : "system";
 }
 
 function getSystemTheme(): ResolvedTheme {
@@ -120,7 +123,11 @@ function inscreverEmSistema(ouvinte: Ouvinte): () => void {
 }
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const theme = React.useSyncExternalStore(inscreverEmTema, getTemaSnapshot, getTemaSnapshotDoServidor);
+  const theme = React.useSyncExternalStore(
+    inscreverEmTema,
+    getTemaSnapshot,
+    getTemaSnapshotDoServidor,
+  );
   const systemTheme = React.useSyncExternalStore(
     inscreverEmSistema,
     getSistemaSnapshot,

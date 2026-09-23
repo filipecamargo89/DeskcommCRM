@@ -91,6 +91,7 @@ beforeEach(async () => {
 
 afterEach(() => {
   document.body.innerHTML = "";
+  window.history.replaceState({}, "", "/");
   vi.restoreAllMocks();
 });
 
@@ -152,5 +153,35 @@ describe("o tema não diverge entre o SSR e a primeira renderização do cliente
       createRoot(container).render(ARVORE);
     });
     expect(container.innerHTML).toContain("Tema: dark");
+  });
+
+  it("abre a área de trabalho em modo escuro quando ainda não há preferência", async () => {
+    window.history.replaceState({}, "", "/app/inbox");
+    vi.resetModules();
+    ({ ThemeProvider } = await import("@/lib/theme"));
+    ({ ThemeToggle } = await import("@/components/theme/theme-toggle"));
+
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+    act(() => {
+      createRoot(container).render(
+        <ThemeProvider>
+          <ThemeToggle />
+        </ThemeProvider>,
+      );
+    });
+
+    expect(container.innerHTML).toContain("Tema: dark");
+    expect(document.documentElement).toHaveAttribute("data-theme", "dark");
+  });
+
+  it("mantém o padrão do sistema fora da área de trabalho", () => {
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+    act(() => {
+      createRoot(container).render(ARVORE);
+    });
+
+    expect(container.innerHTML).toContain("Tema: system");
   });
 });

@@ -1,13 +1,11 @@
-import Link from "next/link";
 import Image from "next/image";
+import Link from "next/link";
 
 import { EntrarComGoogle } from "@/components/auth/EntrarComGoogle";
-import { LoginForm } from "@/components/auth/LoginForm";
 import { OperationalLoginForm } from "@/components/auth/OperationalLoginForm";
-import { branding } from "@/lib/branding";
-import { createClient } from "@/lib/supabase/server";
 import { idiomaDoVisitante } from "@/lib/i18n/idiomaAnonimo";
 import { traduzir } from "@/lib/i18n/dicionario";
+import { createClient } from "@/lib/supabase/server";
 
 export const metadata = { title: "Entrar" };
 
@@ -17,10 +15,6 @@ export default async function LoginPage({
   searchParams: Promise<{ next?: string; reset?: string; error?: string }>;
 }) {
   const { next, reset, error } = await searchParams;
-  // Fora da árvore de `app/app/layout.tsx` — sem `IdiomaProvider` do lado do
-  // servidor (o cliente já tem o seu, montado em `app/(public)/layout.tsx`).
-  // Quase nunca há sessão aqui (é a própria tela de entrar), mas resolve do
-  // mesmo jeito por segurança — `user` opcional.
   const supabase = await createClient();
   const {
     data: { user },
@@ -30,232 +24,110 @@ export default async function LoginPage({
   );
   const t = (texto: string) => traduzir(texto, idioma);
 
-  const isOperationalLogin =
-    next === "/operacional" || next?.startsWith("/operacional/");
-
-  if (isOperationalLogin) {
-    return (
-      <div className="fixed inset-0 z-[100] overflow-hidden bg-[#080808]">
-        <div className="relative h-screen w-screen">
-          <Image
-            src="/gestao/login-zion.png"
-            alt=""
-            aria-hidden="true"
-            fill
-            priority
-            sizes="100vw"
-            className="object-cover object-center"
-          />
-
-          <div className="absolute inset-0 hidden md:block">
-            <div
-              aria-hidden="true"
-              className="absolute inset-y-0 left-[50.5%] right-0 bg-[#0c0b09] shadow-[-24px_0_64px_34px_rgba(12,11,9,0.98)]"
-            />
-
-            <div
-              className="
-                absolute
-                left-[52.5%]
-                top-1/2
-                z-20
-                w-[33%]
-                min-w-[460px]
-                max-w-[600px]
-                -translate-y-1/2
-                rounded-lg
-                border
-                border-white/15
-                bg-black/15
-                p-10
-                shadow-[0_24px_80px_rgba(0,0,0,0.2)]
-                backdrop-blur-[2px]
-              "
-            >
-              <div className="mb-9">
-                <p className="text-[12px] font-semibold uppercase text-[#dfb64f]">
-                  Área restrita
-                </p>
-                <h1 className="mt-5 text-[34px] font-semibold text-white">
-                  Bem-vindo à Gestão
-                </h1>
-                <p className="mt-3 max-w-[430px] text-[16px] leading-7 text-white/70">
-                  Entre com suas credenciais para acessar o ambiente operacional.
-                </p>
-              </div>
-
-              <OperationalLoginForm next={next} />
-
-              <div className="mt-5 text-center">
-                <Link
-                  href="/login/forgot"
-                  className="text-[14px] text-white/55 underline decoration-white/25 underline-offset-4 transition hover:text-[#d6ad4f]"
-                >
-                  Esqueci minha senha
-                </Link>
-              </div>
-            </div>
-          </div>
-
-          <div className="absolute inset-0 z-20 flex items-center justify-center bg-[#090806] p-6 md:hidden">
-            <div className="w-full max-w-md">
-              <div className="mb-8 text-center">
-                <div className="text-3xl font-semibold text-[#d6ad4f]">
-                  ZION
-                </div>
-
-                <div className="mt-2 text-[10px] text-white/60">
-                  GESTÃO DE CONTRATOS
-                </div>
-              </div>
-
-              <OperationalLoginForm next={next} />
-
-              <div className="mt-7 text-center">
-                <Link
-                  href="/login/forgot"
-                  className="text-sm text-white/60 underline underline-offset-2"
-                >
-                  Esqueci minha senha
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const isOperationalLogin = next === "/operacional" || next?.startsWith("/operacional/");
+  const titulo = isOperationalLogin ? "Bem-vindo à Gestão" : "Bem-vindo ao Atendimento Zion";
+  const destinoPadrao = isOperationalLogin ? "/operacional" : "/app";
+  const aviso =
+    reset === "success"
+      ? t("Senha redefinida com sucesso. Entre com a nova senha.")
+      : error === "link_invalido"
+        ? t("Link inválido ou expirado. Peça um novo em Recuperar senha ou refaça o cadastro.")
+        : error === "convite_invalido"
+          ? t(
+              "Sua conta foi confirmada, mas o convite não vale mais. Peça um novo a quem te convidou.",
+            )
+          : error === "cadastro_por_convite"
+            ? t(
+                "Esta instalação aceita cadastro apenas por convite. Peça um convite a quem administra o sistema.",
+              )
+            : error === "template_padrao"
+              ? t(
+                  "O modelo de e-mail da instalação precisa ser configurado por quem administra o sistema.",
+                )
+              : error === "provisionamento"
+                ? t("Houve um erro ao preparar seu ambiente. Tente entrar novamente em instantes.")
+                : error === "entrada_com_google"
+                  ? t(
+                      "Não foi possível concluir a entrada com o Google. Tente novamente ou entre com e-mail e senha.",
+                    )
+                  : error === "entrada_com_google_cancelada"
+                    ? t(
+                        "A entrada com o Google foi cancelada antes de terminar. Nada mudou na sua conta.",
+                      )
+                    : error === "acesso_revogado"
+                      ? t("O acesso desta conta foi retirado por quem administra o sistema.")
+                      : null;
 
   return (
-    <div className="space-y-6">
-      <div className="space-y-1.5 text-center">
-        <h1 className="text-2xl font-semibold tracking-tight">{t("Entrar")}</h1>
-        <p className="text-sm text-muted-foreground">{branding().name}</p>
-      </div>
-      {reset === "success" && (
-        <div
-          className="rounded-md border border-primary/30 bg-primary/10 px-3 py-2 text-sm"
-          role="status"
-        >
-          {t("Senha redefinida com sucesso. Entre com a nova senha.")}
+    <div className="fixed inset-0 z-[100] overflow-auto bg-[#080808] md:overflow-hidden">
+      <div className="relative min-h-screen w-screen md:h-screen">
+        <Image
+          src="/gestao/login-zion.png"
+          alt=""
+          aria-hidden="true"
+          fill
+          priority
+          sizes="100vw"
+          className="hidden object-cover object-center md:block"
+        />
+
+        <div className="absolute inset-0 hidden md:block">
+          <div
+            aria-hidden="true"
+            className="absolute inset-y-0 right-0 left-[50.5%] bg-[#0c0b09] shadow-[-24px_0_64px_34px_rgba(12,11,9,0.98)]"
+          />
         </div>
-      )}
-      {error === "link_invalido" && (
-        <div
-          className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive"
-          role="alert"
-        >
-          {t("Link inválido ou expirado. Peça um novo em Recuperar senha ou refaça o cadastro.")}
+
+        <div className="relative z-20 flex min-h-screen items-center justify-center px-5 py-8 md:absolute md:inset-y-0 md:left-[52.5%] md:w-[33%] md:max-w-[600px] md:min-w-[460px] md:p-0">
+          <div className="w-full max-w-md rounded-lg border border-white/15 bg-[#0c0b09]/95 p-6 shadow-[0_24px_80px_rgba(0,0,0,0.25)] backdrop-blur-[2px] md:max-w-none md:bg-black/15 md:p-10">
+            <div className="mb-7 md:mb-9">
+              <p className="text-[12px] font-semibold text-[#dfb64f] uppercase">
+                {isOperationalLogin ? "Área restrita" : "Central de atendimento"}
+              </p>
+              <h1 className="mt-4 text-[28px] leading-tight font-semibold text-white md:mt-5 md:text-[34px]">
+                {titulo}
+              </h1>
+              <p className="mt-3 max-w-[430px] text-[15px] leading-6 text-white/70 md:text-[16px] md:leading-7">
+                Entre com suas credenciais para acessar o ambiente{" "}
+                {isOperationalLogin ? "operacional" : "de atendimento"}.
+              </p>
+            </div>
+
+            {aviso ? (
+              <div
+                className={`mb-5 rounded-md border px-4 py-3 text-sm ${reset === "success" ? "border-[#dfb64f]/35 bg-[#dfb64f]/10 text-[#f0d784]" : "border-red-400/30 bg-red-950/35 text-red-100"}`}
+                role={reset === "success" ? "status" : "alert"}
+              >
+                {aviso}
+              </div>
+            ) : null}
+
+            <OperationalLoginForm next={next} defaultDestination={destinoPadrao} />
+            {!isOperationalLogin ? <EntrarComGoogle next={next} appearance="zion" /> : null}
+
+            <div className="mt-5 space-y-2 text-center text-sm">
+              <p>
+                <Link
+                  href="/login/forgot"
+                  className="text-white/55 underline decoration-white/25 underline-offset-4 transition hover:text-[#d6ad4f]"
+                >
+                  {t("Esqueci minha senha")}
+                </Link>
+              </p>
+              {!isOperationalLogin ? (
+                <p className="text-white/50">
+                  {t("Não tem conta?")}{" "}
+                  <Link
+                    href="/signup"
+                    className="font-medium text-[#dfb64f] underline underline-offset-4 hover:text-[#ebca71]"
+                  >
+                    {t("Criar conta")}
+                  </Link>
+                </p>
+              ) : null}
+            </div>
+          </div>
         </div>
-      )}
-      {/*
-        Os dois avisos abaixo chegaram por frentes diferentes e falam de erros
-        diferentes — o merge os pôs no mesmo lugar, e ficar com um só apagaria um
-        diagnóstico inteiro da tela de login.
-      */}
-      {error === "convite_invalido" && (
-        <div
-          className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive"
-          role="alert"
-        >
-          {t(
-            "Sua conta foi confirmada, mas o convite não vale mais — ele expirou ou foi emitido para outro e-mail. Peça um novo a quem te convidou. Não criamos uma empresa nova para você, porque não era isso que você estava fazendo.",
-          )}
-        </div>
-      )}
-      {error === "cadastro_por_convite" && (
-        <div
-          className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive"
-          role="alert"
-        >
-          {t(
-            "Sua conta foi confirmada, mas esta instalação aceita cadastro apenas por convite — então não criamos uma empresa para você. Peça um convite a quem administra o sistema; o link dele já traz tudo o que falta.",
-          )}
-        </div>
-      )}
-      {error === "template_padrao" && (
-        <div
-          className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive"
-          role="alert"
-        >
-          {t(
-            "Este link veio do modelo de e-mail padrão do Supabase, que não fecha o acesso nesta instalação — pedir outro link não resolve. Quem administra o sistema precisa configurar os modelos de e-mail: na nuvem do Supabase, com ",
-          )}
-          <code>marca-emails.sh</code>
-          {t(
-            "; num Supabase próprio, apontando GOTRUE_MAILER_TEMPLATES_* para as rotas /email-templates/ do app.",
-          )}
-        </div>
-      )}
-      {error === "provisionamento" && (
-        <div
-          className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive"
-          role="alert"
-        >
-          {t(
-            "Sua conta foi confirmada, mas houve um erro ao preparar seu ambiente. Tente entrar novamente em instantes.",
-          )}
-        </div>
-      )}
-      {/*
-        As duas recusas da entrada com Google, separadas de propósito: uma é
-        falha da volta (o `code` não virou sessão), a outra é desistência de
-        quem estava do outro lado. A mesma mensagem para as duas mandaria a
-        pessoa "tentar de novo" quando ela só fechou a tela — e procurar
-        defeito onde não há.
-      */}
-      {error === "entrada_com_google" && (
-        <div
-          className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive"
-          role="alert"
-        >
-          {t(
-            "Não foi possível concluir a entrada com o Google. Tente novamente — se acontecer de novo, entre com e-mail e senha.",
-          )}
-        </div>
-      )}
-      {error === "entrada_com_google_cancelada" && (
-        <div
-          className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive"
-          role="alert"
-        >
-          {t("A entrada com o Google foi cancelada antes de terminar. Nada mudou na sua conta.")}
-        </div>
-      )}
-      {/* A terceira recusa da entrada com Google: a conta está confirmada, mas o
-          acesso dela foi retirado. Não é convite inválido (não havia convite
-          nenhum) nem falha do Google — é decisão de quem administra, e a tela
-          diz exatamente isso, em vez de mandar a pessoa "tentar de novo". */}
-      {error === "acesso_revogado" && (
-        <div
-          className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive"
-          role="alert"
-        >
-          {t(
-            "O acesso desta conta foi retirado por quem administra o sistema — então não criamos uma empresa nova para você. Se o acesso deveria continuar, peça a quem administra para restaurá-lo; se você está entrando em outra equipe, peça um convite.",
-          )}
-        </div>
-      )}
-      <LoginForm next={next} />
-      <EntrarComGoogle next={next} />
-      <div className="space-y-2 text-center text-sm">
-        <p>
-          <Link
-            href="/login/forgot"
-            className="text-muted-foreground underline underline-offset-4 hover:text-foreground"
-          >
-            {t("Esqueci minha senha")}
-          </Link>
-        </p>
-        <p className="text-muted-foreground">
-          {t("Não tem conta?")}{" "}
-          <Link
-            href="/signup"
-            className="font-medium text-foreground underline underline-offset-4"
-          >
-            {t("Criar conta")}
-          </Link>
-        </p>
       </div>
     </div>
   );

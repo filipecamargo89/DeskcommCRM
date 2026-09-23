@@ -9,7 +9,13 @@ import { signInWithPassword } from "@/app/actions/auth/signInWithPassword";
 import { loginSchema, type LoginInput } from "@/lib/auth/schemas";
 import { EnvelopeSimple, Eye, Lock } from "@/lib/ui/icons";
 
-export function OperationalLoginForm({ next }: { next?: string }) {
+export function OperationalLoginForm({
+  next,
+  defaultDestination = "/operacional",
+}: {
+  next?: string;
+  defaultDestination?: string;
+}) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [serverError, setServerError] = useState<string | null>(null);
@@ -31,7 +37,7 @@ export function OperationalLoginForm({ next }: { next?: string }) {
       const res = await signInWithPassword(values, next);
 
       if (!res) {
-        router.replace(next || "/operacional");
+        router.replace(next || defaultDestination);
         return;
       }
 
@@ -58,10 +64,7 @@ export function OperationalLoginForm({ next }: { next?: string }) {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6" noValidate>
       <div className="space-y-2">
-        <label
-          htmlFor="operational-email"
-          className="block text-[15px] font-medium text-white/90"
-        >
+        <label htmlFor="operational-email" className="block text-[15px] font-medium text-white/90">
           E-mail
         </label>
 
@@ -69,7 +72,7 @@ export function OperationalLoginForm({ next }: { next?: string }) {
           <EnvelopeSimple
             size={23}
             aria-hidden
-            className="pointer-events-none absolute left-5 top-1/2 -translate-y-1/2 text-white/60"
+            className="pointer-events-none absolute top-1/2 left-5 -translate-y-1/2 text-white/60"
           />
           <input
             id="operational-email"
@@ -78,14 +81,12 @@ export function OperationalLoginForm({ next }: { next?: string }) {
             autoFocus
             placeholder="seu@email.com"
             aria-invalid={errors.email ? true : undefined}
-            className="h-16 w-full rounded-md border border-white/20 bg-black/30 pl-14 pr-5 text-[16px] text-white outline-none transition placeholder:text-white/35 hover:border-[#d6ad4f]/45 focus:border-[#d6ad4f] focus:bg-black/45 focus:ring-1 focus:ring-[#d6ad4f]/30"
+            className="h-16 w-full rounded-md border border-white/20 bg-black/30 pr-5 pl-14 text-[16px] text-white transition outline-none placeholder:text-white/35 hover:border-[#d6ad4f]/45 focus:border-[#d6ad4f] focus:bg-black/45 focus:ring-1 focus:ring-[#d6ad4f]/30"
             {...register("email")}
           />
         </div>
 
-        {errors.email ? (
-          <p className="text-xs text-[#ffb4ab]">{errors.email.message}</p>
-        ) : null}
+        {errors.email ? <p className="text-xs text-[#ffb4ab]">{errors.email.message}</p> : null}
       </div>
 
       <div className="space-y-2">
@@ -100,7 +101,7 @@ export function OperationalLoginForm({ next }: { next?: string }) {
           <Lock
             size={23}
             aria-hidden
-            className="pointer-events-none absolute left-5 top-1/2 -translate-y-1/2 text-white/60"
+            className="pointer-events-none absolute top-1/2 left-5 -translate-y-1/2 text-white/60"
           />
           <input
             id="operational-password"
@@ -108,7 +109,7 @@ export function OperationalLoginForm({ next }: { next?: string }) {
             autoComplete="current-password"
             placeholder="Digite sua senha"
             aria-invalid={errors.password ? true : undefined}
-            className="h-16 w-full rounded-md border border-white/20 bg-black/30 pl-14 pr-14 text-[16px] text-white outline-none transition placeholder:text-white/35 hover:border-[#d6ad4f]/45 focus:border-[#d6ad4f] focus:bg-black/45 focus:ring-1 focus:ring-[#d6ad4f]/30"
+            className="h-16 w-full rounded-md border border-white/20 bg-black/30 pr-14 pl-14 text-[16px] text-white transition outline-none placeholder:text-white/35 hover:border-[#d6ad4f]/45 focus:border-[#d6ad4f] focus:bg-black/45 focus:ring-1 focus:ring-[#d6ad4f]/30"
             {...register("password")}
           />
 
@@ -139,7 +140,7 @@ export function OperationalLoginForm({ next }: { next?: string }) {
       <button
         type="submit"
         disabled={isPending}
-        className="h-16 w-full rounded-md bg-[#dfb64f] text-[16px] font-semibold text-[#0b0a08] shadow-[0_12px_36px_rgba(214,173,79,0.16)] transition hover:bg-[#ebca71] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f0d784] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0c0b09] disabled:cursor-not-allowed disabled:opacity-60"
+        className="h-16 w-full rounded-md bg-[#dfb64f] text-[16px] font-semibold text-[#0b0a08] shadow-[0_12px_36px_rgba(214,173,79,0.16)] transition hover:bg-[#ebca71] focus-visible:ring-2 focus-visible:ring-[#f0d784] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0c0b09] focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60"
       >
         {isPending ? "Entrando..." : "Entrar"}
       </button>

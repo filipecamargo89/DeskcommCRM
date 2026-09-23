@@ -17,7 +17,15 @@ import { signInWithGoogle } from "@/app/actions/auth/signInWithGoogle";
  * o Google. O que pode voltar é a recusa, e ela é mostrada aqui mesmo, embaixo
  * do botão, para não perder o que a pessoa já tinha digitado no formulário.
  */
-export function EntrarComGoogle({ next, convite }: { next?: string; convite?: string }) {
+export function EntrarComGoogle({
+  next,
+  convite,
+  appearance = "default",
+}: {
+  next?: string;
+  convite?: string;
+  appearance?: "default" | "zion";
+}) {
   const t = useT();
   const [isPending, startTransition] = useTransition();
   const [erro, setErro] = useState<string | null>(null);
@@ -42,9 +50,21 @@ export function EntrarComGoogle({ next, convite }: { next?: string; convite?: st
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-3">
-        <span className="h-px flex-1 bg-border" />
-        <span className="text-xs uppercase tracking-wide text-muted-foreground">{t("ou")}</span>
-        <span className="h-px flex-1 bg-border" />
+        <span
+          className={appearance === "zion" ? "h-px flex-1 bg-white/15" : "h-px flex-1 bg-border"}
+        />
+        <span
+          className={
+            appearance === "zion"
+              ? "text-xs text-white/45 uppercase"
+              : "text-xs tracking-wide text-muted-foreground uppercase"
+          }
+        >
+          {t("ou")}
+        </span>
+        <span
+          className={appearance === "zion" ? "h-px flex-1 bg-white/15" : "h-px flex-1 bg-border"}
+        />
       </div>
       {erro && (
         <div
@@ -57,7 +77,11 @@ export function EntrarComGoogle({ next, convite }: { next?: string; convite?: st
       <Button
         type="button"
         variant="outline"
-        className="w-full"
+        className={
+          appearance === "zion"
+            ? "w-full border-white/20 bg-black/20 text-white hover:border-[#dfb64f]/60 hover:bg-white/5 hover:text-[#ebca71]"
+            : "w-full"
+        }
         disabled={isPending}
         onClick={onClick}
       >

@@ -112,6 +112,7 @@ export function SidebarContent({
    * descer para ele — que é o contrário do que a precedência por campo promete.
    */
   const logo = activeOrg?.marca?.logoUrl || brand.logoUrl;
+  const logoDaZion = nome.toLocaleLowerCase("pt-BR").includes("zion");
   // Só quando NINGUÉM — nem a instalação, nem a organização — pôs marca própria:
   // é a condição de `lib/branding.ts`, avaliada sobre o que a barra vai mostrar.
   const marcaDoProduto = marcaEhADoProduto({ name: nome, logoUrl: logo ?? null });
@@ -120,7 +121,7 @@ export function SidebarContent({
     <>
       <div
         className={cn(
-          "flex h-14 items-center border-b px-4",
+          "flex h-16 items-center border-b px-4",
           collapsed ? "justify-center" : "justify-start",
         )}
       >
@@ -134,21 +135,25 @@ export function SidebarContent({
           // (`#1d1c17`). Sem isto, todo logo escuro/colorido — a maioria do que
           // se sobe pensando em fundo claro — some no tema escuro (issue: logo
           // da Dra. Mariana Nascimento, azul-marinho sobre quase-preto). O chip
-          // é condicional ao TEMA, não à cor do logo (não dá pra inspecionar
-          // pixel de uma URL externa em server component), então ele aparece
-          // para qualquer logo — inclusive um já pensado pra fundo escuro, que
-          // fica com uma moldura branca de sobra. Troca aceita: pior caso
-          // "moldura desnecessária" é sempre melhor que pior caso "logo
-          // invisível".
-          <div className="rounded-md dark:bg-white dark:px-2 dark:py-1 dark:shadow-sm">
-            {/* <img> em vez de next/image de propósito: a URL vem de quem hospeda
+          // A arte horizontal da Zion foi produzida especificamente para fundo
+          // escuro e transparente. Ela ganha mais área e dispensa o chip claro;
+          // marcas genéricas continuam com a proteção de contraste original.
+          logoDaZion ? (
+            <div className="rounded-md border border-transparent px-2 py-1 dark:border-white/10 dark:bg-black/20 dark:shadow-sm">
+              {/* <img> em vez de next/image de propósito: a URL vem de quem hospeda
               (banco ou .env), e next/image exige allowlist de domínios fechada em
               build — a imagem pré-buildada rejeitaria o domínio do self-hoster.
               Altura fixa e largura livre porque a arte enviada tem proporção
               desconhecida; forçar as duas distorceria o logo de quem configurou. */}
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={logo} alt={nome} className="h-7 w-auto max-w-[10rem] object-contain" />
-          </div>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={logo} alt={nome} className="h-10 w-auto max-w-[11rem] object-contain" />
+            </div>
+          ) : (
+            <div className="rounded-md dark:bg-white dark:px-2 dark:py-1 dark:shadow-sm">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={logo} alt={nome} className="h-7 w-auto max-w-[10rem] object-contain" />
+            </div>
+          )
         ) : marcaDoProduto ? (
           // O desenho do produto, inline (ver `components/branding/MarcaDoProduto.tsx`):
           // logotipo com a barra aberta, só o símbolo com ela recolhida.
