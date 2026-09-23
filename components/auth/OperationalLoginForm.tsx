@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 import { signInWithPassword } from "@/app/actions/auth/signInWithPassword";
 import { loginSchema, type LoginInput } from "@/lib/auth/schemas";
-import { Eye } from "@/lib/ui/icons";
+import { EnvelopeSimple, Eye, Lock } from "@/lib/ui/icons";
 
 export function OperationalLoginForm({ next }: { next?: string }) {
   const router = useRouter();
@@ -56,7 +56,7 @@ export function OperationalLoginForm({ next }: { next?: string }) {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6" noValidate>
       <div className="space-y-2">
         <label
           htmlFor="operational-email"
@@ -65,16 +65,23 @@ export function OperationalLoginForm({ next }: { next?: string }) {
           E-mail
         </label>
 
-        <input
-          id="operational-email"
-          type="email"
-          autoComplete="email"
-          autoFocus
-          placeholder="seu@email.com"
-          aria-invalid={errors.email ? true : undefined}
-          className="h-14 w-full rounded-md border border-[#d6ad4f]/35 bg-black/35 px-4 text-[16px] text-white outline-none transition placeholder:text-white/35 hover:border-[#d6ad4f]/50 focus:border-[#d6ad4f] focus:bg-black/45 focus:ring-1 focus:ring-[#d6ad4f]/30"
-          {...register("email")}
-        />
+        <div className="relative">
+          <EnvelopeSimple
+            size={23}
+            aria-hidden
+            className="pointer-events-none absolute left-5 top-1/2 -translate-y-1/2 text-white/60"
+          />
+          <input
+            id="operational-email"
+            type="email"
+            autoComplete="email"
+            autoFocus
+            placeholder="seu@email.com"
+            aria-invalid={errors.email ? true : undefined}
+            className="h-16 w-full rounded-md border border-white/20 bg-black/30 pl-14 pr-5 text-[16px] text-white outline-none transition placeholder:text-white/35 hover:border-[#d6ad4f]/45 focus:border-[#d6ad4f] focus:bg-black/45 focus:ring-1 focus:ring-[#d6ad4f]/30"
+            {...register("email")}
+          />
+        </div>
 
         {errors.email ? (
           <p className="text-xs text-[#ffb4ab]">{errors.email.message}</p>
@@ -90,13 +97,18 @@ export function OperationalLoginForm({ next }: { next?: string }) {
         </label>
 
         <div className="relative">
+          <Lock
+            size={23}
+            aria-hidden
+            className="pointer-events-none absolute left-5 top-1/2 -translate-y-1/2 text-white/60"
+          />
           <input
             id="operational-password"
             type={showPassword ? "text" : "password"}
             autoComplete="current-password"
             placeholder="Digite sua senha"
             aria-invalid={errors.password ? true : undefined}
-            className="h-14 w-full rounded-md border border-[#d6ad4f]/35 bg-black/35 px-4 pr-14 text-[16px] text-white outline-none transition placeholder:text-white/35 hover:border-[#d6ad4f]/50 focus:border-[#d6ad4f] focus:bg-black/45 focus:ring-1 focus:ring-[#d6ad4f]/30"
+            className="h-16 w-full rounded-md border border-white/20 bg-black/30 pl-14 pr-14 text-[16px] text-white outline-none transition placeholder:text-white/35 hover:border-[#d6ad4f]/45 focus:border-[#d6ad4f] focus:bg-black/45 focus:ring-1 focus:ring-[#d6ad4f]/30"
             {...register("password")}
           />
 
@@ -127,7 +139,7 @@ export function OperationalLoginForm({ next }: { next?: string }) {
       <button
         type="submit"
         disabled={isPending}
-        className="h-[52px] w-full rounded-md bg-[#d6ad4f] text-[16px] font-semibold text-[#0b0a08] shadow-[0_10px_30px_rgba(214,173,79,0.14)] transition hover:bg-[#e4c36a] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f0d784] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0c0b09] disabled:cursor-not-allowed disabled:opacity-60"
+        className="h-16 w-full rounded-md bg-[#dfb64f] text-[16px] font-semibold text-[#0b0a08] shadow-[0_12px_36px_rgba(214,173,79,0.16)] transition hover:bg-[#ebca71] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f0d784] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0c0b09] disabled:cursor-not-allowed disabled:opacity-60"
       >
         {isPending ? "Entrando..." : "Entrar"}
       </button>

@@ -59,28 +59,34 @@ export default async function LoginPage({
                 left-[52.5%]
                 top-1/2
                 z-20
-                w-[29.3%]
-                min-w-[390px]
-                max-w-[560px]
+                w-[33%]
+                min-w-[460px]
+                max-w-[600px]
                 -translate-y-1/2
+                rounded-lg
+                border
+                border-white/15
+                bg-black/15
+                p-10
+                shadow-[0_24px_80px_rgba(0,0,0,0.2)]
+                backdrop-blur-[2px]
               "
             >
-              <div className="mb-7">
-                <div className="mb-5 h-px w-12 bg-[#d6ad4f]" />
-                <p className="text-[11px] font-medium uppercase text-[#d6ad4f]">
-                  Acesso à gestão
+              <div className="mb-9">
+                <p className="text-[12px] font-semibold uppercase text-[#dfb64f]">
+                  Área restrita
                 </p>
-                <h1 className="mt-2 text-[34px] font-semibold text-white">
-                  Entrar
+                <h1 className="mt-5 text-[34px] font-semibold text-white">
+                  Bem-vindo à Gestão
                 </h1>
-                <p className="mt-1 text-[15px] text-white/55">
-                  Zion Gestão de Contratos
+                <p className="mt-3 max-w-[430px] text-[16px] leading-7 text-white/70">
+                  Entre com suas credenciais para acessar o ambiente operacional.
                 </p>
               </div>
 
               <OperationalLoginForm next={next} />
 
-              <div className="mt-6 text-center">
+              <div className="mt-5 text-center">
                 <Link
                   href="/login/forgot"
                   className="text-[14px] text-white/55 underline decoration-white/25 underline-offset-4 transition hover:text-[#d6ad4f]"
