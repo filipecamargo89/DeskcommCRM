@@ -1,7 +1,9 @@
 import Link from "next/link";
+import Image from "next/image";
 
 import { EntrarComGoogle } from "@/components/auth/EntrarComGoogle";
 import { LoginForm } from "@/components/auth/LoginForm";
+import { OperationalLoginForm } from "@/components/auth/OperationalLoginForm";
 import { branding } from "@/lib/branding";
 import { createClient } from "@/lib/supabase/server";
 import { idiomaDoVisitante } from "@/lib/i18n/idiomaAnonimo";
@@ -27,6 +29,96 @@ export default async function LoginPage({
     (user?.user_metadata?.locale as string | undefined) ?? null,
   );
   const t = (texto: string) => traduzir(texto, idioma);
+
+  const isOperationalLogin =
+    next === "/operacional" || next?.startsWith("/operacional/");
+
+  if (isOperationalLogin) {
+    return (
+      <div className="fixed inset-0 z-[100] overflow-hidden bg-[#080808]">
+        <div className="relative h-screen w-screen">
+          <Image
+            src="/gestao/login-zion.png"
+            alt=""
+            aria-hidden="true"
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover object-center"
+          />
+
+          <div className="absolute inset-0 hidden md:block">
+            <div
+              aria-hidden="true"
+              className="absolute left-[50.5%] top-1/2 h-[66%] w-[35%] -translate-y-1/2 bg-[#0c0b09] shadow-[0_0_64px_34px_rgba(12,11,9,0.98)]"
+            />
+
+            <div
+              className="
+                absolute
+                left-[52.5%]
+                top-1/2
+                z-20
+                w-[29.3%]
+                min-w-[390px]
+                max-w-[560px]
+                -translate-y-1/2
+              "
+            >
+              <div className="mb-7">
+                <div className="mb-5 h-px w-12 bg-[#d6ad4f]" />
+                <p className="text-[11px] font-medium uppercase text-[#d6ad4f]">
+                  Acesso à gestão
+                </p>
+                <h1 className="mt-2 text-[34px] font-semibold text-white">
+                  Entrar
+                </h1>
+                <p className="mt-1 text-[15px] text-white/55">
+                  Zion Gestão de Contratos
+                </p>
+              </div>
+
+              <OperationalLoginForm next={next} />
+
+              <div className="mt-6 text-center">
+                <Link
+                  href="/login/forgot"
+                  className="text-[14px] text-white/55 underline decoration-white/25 underline-offset-4 transition hover:text-[#d6ad4f]"
+                >
+                  Esqueci minha senha
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          <div className="absolute inset-0 z-20 flex items-center justify-center bg-[#090806] p-6 md:hidden">
+            <div className="w-full max-w-md">
+              <div className="mb-8 text-center">
+                <div className="text-3xl font-semibold text-[#d6ad4f]">
+                  ZION
+                </div>
+
+                <div className="mt-2 text-[10px] text-white/60">
+                  GESTÃO DE CONTRATOS
+                </div>
+              </div>
+
+              <OperationalLoginForm next={next} />
+
+              <div className="mt-7 text-center">
+                <Link
+                  href="/login/forgot"
+                  className="text-sm text-white/60 underline underline-offset-2"
+                >
+                  Esqueci minha senha
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
