@@ -201,6 +201,15 @@ export const NAV_CATALOG = [
     sidebar: true,
   },
   {
+    href: "/app/simuladores",
+    label: "Simuladores",
+    description: "Calcule parcelas e consulte os simuladores financeiros da operação.",
+    icon: "Calculator",
+    group: "crm",
+    section: "O dia a dia da venda",
+    sidebar: true,
+  },
+  {
     // A campanha vive no CRM e não em Conexões: quem a usa está pensando em
     // QUEM vai falar, não no número que fala. O ritmo (que é de Conexões) ela
     // herda, e só sabe deixar mais devagar.

@@ -140,6 +140,7 @@ export {
   IdentificationCard,
   // agenda (o barril não tinha NENHUM ícone de calendário até aqui)
   CalendarBlank,
+  Calculator,
   CalendarDots,
   CalendarPlus,
   CalendarX,
