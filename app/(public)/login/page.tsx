@@ -50,7 +50,7 @@ export default async function LoginPage({
           <div className="absolute inset-0 hidden md:block">
             <div
               aria-hidden="true"
-              className="absolute left-[50.5%] top-1/2 h-[66%] w-[35%] -translate-y-1/2 bg-[#0c0b09] shadow-[0_0_64px_34px_rgba(12,11,9,0.98)]"
+              className="absolute inset-y-0 left-[50.5%] right-0 bg-[#0c0b09] shadow-[-24px_0_64px_34px_rgba(12,11,9,0.98)]"
             />
 
             <div
