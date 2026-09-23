@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { signOut } from "@/app/actions/auth/signOut";
 import { requireRole } from "@/lib/auth/require-role";
 import { loadAuthUser } from "@/lib/auth/server";
-import { ClipboardText, House, SignOut } from "@/lib/ui/icons";
+import { ClipboardText, House, SignOut, UsersThree } from "@/lib/ui/icons";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { cssDaMarca, ESCOPO_DA_ORGANIZACAO } from "@/lib/branding/css";
@@ -42,6 +42,8 @@ export default async function OperationalLayout({ children }: { children: React.
 
   if (!allowed) return <AccessDenied />;
 
+  const isMaster = (user.is_platform_admin && !user.support) || authz.org.role === "admin";
+
   // Reutiliza exatamente a mesma marca da organização aplicada no CRM.
   const admin = createAdminClient();
   const { data: orgRow } = await admin
@@ -75,6 +77,12 @@ export default async function OperationalLayout({ children }: { children: React.
           </Link>
           <div className="flex shrink-0 items-center gap-1 sm:gap-3">
             <span className="hidden max-w-48 truncate text-xs text-muted-foreground md:inline">{authz.org.name}</span>
+            {isMaster && (
+              <Link href="/operacional/usuarios" className="inline-flex h-9 items-center gap-2 rounded-sm px-2 text-sm text-muted-foreground hover:bg-accent-soft hover:text-foreground" title="Usuários">
+                <UsersThree size={17} aria-hidden />
+                <span className="hidden sm:inline">Usuários</span>
+              </Link>
+            )}
             <Link href="/app" className="inline-flex h-9 items-center gap-2 rounded-sm px-2 text-sm text-muted-foreground hover:bg-accent-soft hover:text-foreground" title="Abrir CRM">
               <House size={17} aria-hidden />
               <span className="hidden sm:inline">CRM</span>
